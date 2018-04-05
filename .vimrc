@@ -17,7 +17,6 @@ Plug 'tpope/vim-obsession'
 Plug 'PProvost/vim-ps1'
 Plug 'scrooloose/syntastic'
 Plug 'scrooloose/nerdtree'
-Plug 'kien/ctrlp.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'scrooloose/nerdcommenter'
 Plug 'bling/vim-airline'
@@ -77,17 +76,11 @@ inoremap <A-j> <Esc>:m .+1<CR>==gi
 inoremap <A-k> <Esc>:m .-2<CR>==gi
 vnoremap <A-j> :m '>+1<CR>gv=gv
 vnoremap <A-k> :m '<-2<CR>gv=gv
-
-" Key mappings to enable arrow keys
-" https://github.com/krisleech/vimfiles/wiki/Enable-arrow-keys
-nnoremap <Left> h                
-nnoremap <Right> l                                                              
-nnoremap <Up> k                                                                 
-nnoremap <Down> j                                                               
-inoremap <up> k                                                                 
-inoremap <down> j                                                               
-inoremap <left> h                                                               
-inoremap <right> k
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+"
+" " Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 " Key mappings to more easily navigate tabs
 nnoremap <A-h> :tabp<Enter>
