@@ -12,6 +12,22 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-markdown'
 Plug 'junegunn/vim-easy-align'
 Plug 'flazz/vim-colorschemes'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-obsession'
+Plug 'PProvost/vim-ps1'
+Plug 'scrooloose/syntastic'
+Plug 'scrooloose/nerdtree'
+Plug 'kien/ctrlp.vim'
+Plug 'airblade/vim-gitgutter'
+Plug 'scrooloose/nerdcommenter'
+Plug 'bling/vim-airline'
+Plug 'tpope/vim-repeat'
+Plug 'pangloss/vim-javascript'
+Plug 'ervandew/supertab'
+Plug 'easymotion/vim-easymotion'
+Plug 'nathanaelkane/vim-indent-guides'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'shougo/unite.vim'
 
 " Any valid git URL is allowed
 " Plug 'https://github.com/junegunn/vim-github-dashboard.git'
@@ -50,6 +66,8 @@ au FileType markdown vmap <tab> :EasyAlign*<Bar><Enter>\
 "  '|' selects and aligns markdown table
 au FileType markdown map <Bar> vip :EasyAlign*<Bar><Enter>
 
+set shell=powershell
+set shellcmdflag=-command
 
 " Key mappings to move lines
 " http://vim.wikia.com/wiki/Moving_lines_up_or_down
@@ -62,15 +80,16 @@ vnoremap <A-k> :m '<-2<CR>gv=gv
 
 " Key mappings to enable arrow keys
 " https://github.com/krisleech/vimfiles/wiki/Enable-arrow-keys
-nnoremap <Left> h
-nnoremap <Right> l
-nnoremap <Up> k
-nnoremap <Down> j
-inoremap <up> k
-inoremap <down> j
-inoremap <left> h
+nnoremap <Left> h                
+nnoremap <Right> l                                                              
+nnoremap <Up> k                                                                 
+nnoremap <Down> j                                                               
+inoremap <up> k                                                                 
+inoremap <down> j                                                               
+inoremap <left> h                                                               
 inoremap <right> k
 
 " Key mappings to more easily navigate tabs
 nnoremap <A-h> :tabp<Enter>
 nnoremap <A-l> :tabn<Enter>
+
