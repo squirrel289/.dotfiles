@@ -95,4 +95,4 @@ nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
 
 set relativenumber
 set number
-colorscheme darkslategray
+colorscheme znake 
