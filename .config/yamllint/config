@@ -1,0 +1,5 @@
+extends: default
+  document-start: disable
+  indentation:
+    spaces: 2
+    indent-sequences: consistent

@@ -1,3 +1,6 @@
+" filetype plugin indent on
+filetype on
+
 function! Gist(name)
     return { 'as': a:name, 'do': 'mkdir -p plugin: cp -f *.vim plugin/' }
 endfunction         
@@ -11,7 +14,7 @@ if has('win32')
   endif
 endif
 
-if has('unix')
+if has('unix') || has('macunix')
   let vimfiles = '~/.vim/plugged' 
   if empty(glob('~/.vim/autoload/plug.vim'))
     silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -33,7 +36,8 @@ Plug 'flazz/vim-colorschemes'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-obsession'
 Plug 'PProvost/vim-ps1'
-Plug 'scrooloose/syntastic'
+" Plug 'scrooloose/syntastic'
+Plug 'w0rp/ale'
 Plug 'scrooloose/nerdtree'
 Plug 'airblade/vim-gitgutter'
 Plug 'scrooloose/nerdcommenter'
@@ -96,3 +100,8 @@ nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . (tabpagenr()+1)<CR>
 set relativenumber
 set number
 colorscheme znake 
+
+set pastetoggle=<F3>
+
+" let g:syntastic_cloudformation_checkers = ['cfn_lint']
+let g:ale_completion_enabled = 1
