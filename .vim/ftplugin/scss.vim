@@ -1,10 +1,10 @@
 let b:prettier_ft_default_args = {
-  \ 'parser': 'yaml',
+  \ 'parser': 'scss',
   \ }
 
 augroup Prettier
   autocmd!
   if g:prettier#autoformat
-    autocmd BufWritePre *.yaml call prettier#Autoformat()
+    autocmd BufWritePre *.scss call prettier#Autoformat()
   endif
 augroup end
