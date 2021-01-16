@@ -1,7 +1,7 @@
 filetype plugin indent on
 " filetype on
 
-set autochdir " Set working directory to current"
+set autochdir " Set working directory to current
 set undofile " Maintain undo history between sessions
 
 function! Gist(name)
