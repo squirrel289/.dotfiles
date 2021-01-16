@@ -1,20 +1,23 @@
 filetype plugin indent on
 " filetype on
 
+set autochdir " Set working directory to current"
 set undofile " Maintain undo history between sessions
 
 function! Gist(name)
     return { 'as': a:name, 'do': 'mkdir -p plugin: cp -f *.vim plugin/' }
 endfunction         
                           
-function! Download(url, output)
-  if has('win32')
-    silent! md a:output; (New-Object Net.WebClient).DownloadFile(a:url, $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(g:plugfile));
-  endif
-  if has('unix') || has('macunix')
-    silent !curl -fLo a:output --create-dirs a:url 
-  endif
-endfunction
+"function Download(url, output)
+"  if has('win32')
+"    silent! md a:output; (New-Object Net.WebClient).DownloadFile(a:url, $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(g:plugfile))
+"  endif
+"  if has('unix') || has('macunix')
+"    let cmd='curl -fLo '. a:output. ' --create-dirs '.a:url
+"    echom cmd
+"    let err=system(cmd)
+"  endif
+"endfunction
 
 " Auto update plug.vim before we use it
 if has('win32')
@@ -27,10 +30,10 @@ if has('unix') || has('macunix')
   let plugfile = g:vimdir. 'autoload/plug.vim'
 endif
 
-if empty(glob(g:plugfile))
-  Download('https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim', g:plugfile)
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
+"if empty(glob(g:plugfile))
+"  call Download('https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim', g:plugfile)
+"  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+"endif
 
 let undodir = g:vimdir. 'undo'
 let vimfiles = g:vimdir. 'plugged' 
@@ -60,36 +63,36 @@ endif
 " - Avoid using standard Vim directory names like 'plugin'
 call plug#begin(vimfiles)
 
-" Plug 'scrooloose/syntastic'
-Plug 'christianrondeau/vim-base64'
-Plug 'PProvost/vim-ps1'
+Plug 'scrooloose/syntastic'
+"Plug 'christianrondeau/vim-base64'
+"Plug 'PProvost/vim-ps1'
 Plug 'airblade/vim-gitgutter'
-Plug 'bling/vim-airline'
+"Plug 'bling/vim-airline'
 Plug 'easymotion/vim-easymotion'
-Plug 'ervandew/supertab'
+"Plug 'ervandew/supertab'
 Plug 'felixhummel/setcolors.vim'
 Plug 'flazz/vim-colorschemes'
-Plug 'https://gist.github.com/1171559.git', Gist('next_motion_mapping')
+"Plug 'https://gist.github.com/1171559.git', Gist('next_motion_mapping')
 Plug 'junegunn/vim-easy-align'
-Plug 'moll/vim-node'
+"Plug 'moll/vim-node'
 Plug 'nathanaelkane/vim-indent-guides'
-Plug 'pangloss/vim-javascript'
-Plug 'sakhnik/nvim-gdb', { 'do': ':!./install.sh \| UpdateRemotePlugins' }
-Plug 'scrooloose/nerdcommenter'
-Plug 'scrooloose/nerdtree'
-Plug 'shougo/unite.vim'
-Plug 'terryma/vim-multiple-cursors'
+"Plug 'pangloss/vim-javascript'
+"Plug 'sakhnik/nvim-gdb', { 'do': ':!./install.sh \| UpdateRemotePlugins' }
+"Plug 'scrooloose/nerdcommenter'
+"Plug 'scrooloose/nerdtree'
+"Plug 'shougo/unite.vim'
+"Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-markdown'
-Plug 'tpope/vim-obsession'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-surround'
+"Plug 'tpope/vim-markdown'
+"Plug 'tpope/vim-obsession'
+"Plug 'tpope/vim-repeat'
+"Plug 'tpope/vim-sensible'
+"Plug 'tpope/vim-surround'
 Plug 'w0rp/ale'
 Plug 'prettier/vim-prettier'
-Plug 'wellle/targets.vim'
-Plug 'wesQ3/vim-windowswap'
-Plug 'xavierchow/vim-swagger-preview'
+"Plug 'wellle/targets.vim'
+"Plug 'wesQ3/vim-windowswap'
+"Plug 'xavierchow/vim-swagger-preview'
 Plug 'mbbill/undotree'
 
 call plug#end()
@@ -103,8 +106,8 @@ au FileType markdown map <Bar> vip :EasyAlign*<Bar><Enter>
 
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 xmap ga <Plug>(EasyAlign)
-"
-" " Start interactive EasyAlign for a motion/text object (e.g. gaip)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
 " Key mappings to move lines
@@ -136,8 +139,8 @@ set splitbelow
 set splitright
 
 " Mode change mappings
-tnoremap <Esc> <C-\><C-n>
-nnoremap <Esc> :q<Enter>
+"tnoremap <Esc> <C-\><C-n>
+"nnoremap <Esc> :q<Enter>
 
 " Auto-reload *rc files on save
 if has ('autocmd') " Remain compatible with earlier versions
