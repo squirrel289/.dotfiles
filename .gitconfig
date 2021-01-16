@@ -5,3 +5,5 @@
 	insteadOf = https://git-codecommit.*.amazonaws.com/
 [url "APKARG2YCWB2YR722SPY@git-codecommit.us-east-1.amazonaws.com:"]
 	insteadOf = https://git-codecommit.us-east-1.amazonaws.com
+[credential]
+	helper = osxkeychain
