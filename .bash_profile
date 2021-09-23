@@ -30,3 +30,6 @@ fi
 if [ -f ~/.bashrc ]; then
   . ~/.bashrc
 fi
+
+alias la='ls -la'
+alias ll='ls -l'

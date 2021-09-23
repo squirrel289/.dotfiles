@@ -28,3 +28,5 @@ ln -s "${PWD}/${PROFILE}" "${HOME}/"
 ln -s "${PWD}/${VIMRC}" "${HOME}/"
 ln -s "${PWD}/${VIMDIR}" "${HOME}/"
 ln -s "${PWD}/${CONFIG}" "${HOME}/"
+
+curl -fLo "{$HOME}/{$VIMDIR}/autoload/plug.vim" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
