@@ -1,5 +1,6 @@
 GITCONFIG=".gitconfig"
 BASH_PROFILE=".bash_profile"
+BASH_ALIASES=".bash_aliases"
 PROFILE=".profile"
 VIMRC=".vimrc"
 VIMDIR=".vim"
@@ -17,13 +18,15 @@ clear_path(){
 }
 clear_path "${HOME}/${GITCONFIG}"
 clear_path "${HOME}/${BASH_PROFILE}"
+clear_path "${HOME}/${BASH_ALIASES}"
 clear_path "${HOME}/${PROFILE}"
 clear_path "${HOME}/${VIMRC}"
 clear_path "${HOME}/${CONFIG}"
 clear_path "${HOME}/${VIMDIR}"
 
 ln -s "${PWD}/${GITCONFIG}" "${HOME}/"
-ln -s "${PWD}/${BASH_PROGILE}" "${HOME}/"
+ln -s "${PWD}/${BASH_PROFILE}" "${HOME}/"
+ln -s "${PWD}/${BASH_ALIASES}" "${HOME}/"
 ln -s "${PWD}/${PROFILE}" "${HOME}/"
 ln -s "${PWD}/${VIMRC}" "${HOME}/"
 ln -s "${PWD}/${VIMDIR}" "${HOME}/"

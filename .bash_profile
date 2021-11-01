@@ -22,14 +22,10 @@ if [ -f $aws_completer_path ]; then
   complete -C '$aws_completer_path' aws
 fi
 
-if [ ! -f ~/.bashrc ]; then
-  echo "export HISTCONTROL=ignoreboth:erasedups" > .bashrc
-  chmod u+x ~/.bashrc
-fi
-
 if [ -f ~/.bashrc ]; then
   . ~/.bashrc
 fi
 
-alias la='ls -la'
-alias ll='ls -l'
+HISTCONTROL=ignoredups:erasedups
+shopt -s histappend
+PROMPT_COMMAND="history -n; history -w; history -c; history -r; $PROMPT_COMMAND"
