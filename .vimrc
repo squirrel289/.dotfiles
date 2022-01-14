@@ -95,6 +95,7 @@ Plug 'prettier/vim-prettier'
 "Plug 'wesQ3/vim-windowswap'
 "Plug 'xavierchow/vim-swagger-preview'
 Plug 'mbbill/undotree'
+Plug 'adi/vim-indent-rainbow'
 
 call plug#end()
 

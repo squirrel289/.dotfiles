@@ -10,7 +10,7 @@ CONFIG=".config"
 clear_path(){
   FILE="$1"
   if [ -L "$FILE" ]; then
-    echo "Link ${FILE} exists"
+    echo "Link ${FILE} exists. Recreating..."
     rm "${FILE}"
   elif [ -e "$FILE" ]; then
     echo "File ${FILE} exists"
@@ -26,13 +26,15 @@ clear_path "${HOME}/${VIMRC}"
 clear_path "${HOME}/${CONFIG}"
 clear_path "${HOME}/${VIMDIR}"
 
-ln -s "${PWD}/${GITCONFIG}" "${HOME}/"
-ln -s "${PWD}/${BASH_PROFILE}" "${HOME}/"
-ln -s "${PWD}/${BASH_ALIASES}" "${HOME}/"
-ln -s "${PWD}/${BASHRC}" "${HOME}/"
-ln -s "${PWD}/${PROFILE}" "${HOME}/"
-ln -s "${PWD}/${VIMRC}" "${HOME}/"
-ln -s "${PWD}/${VIMDIR}" "${HOME}/"
-ln -s "${PWD}/${CONFIG}" "${HOME}/"
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-curl -fLo "{$HOME}/{$VIMDIR}/autoload/plug.vim" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+ln -s "${SCRIPT_DIR}/${GITCONFIG}" "${HOME}/"
+ln -s "${SCRIPT_DIR}/${BASH_PROFILE}" "${HOME}/"
+ln -s "${SCRIPT_DIR}/${BASH_ALIASES}" "${HOME}/"
+ln -s "${SCRIPT_DIR}/${BASHRC}" "${HOME}/"
+ln -s "${SCRIPT_DIR}/${PROFILE}" "${HOME}/"
+ln -s "${SCRIPT_DIR}/${VIMRC}" "${HOME}/"
+ln -s "${SCRIPT_DIR}/${VIMDIR}" "${HOME}/"
+ln -s "${SCRIPT_DIR}/${CONFIG}" "${HOME}/"
+
+curl -fLo "$HOME/$VIMDIR/autoload/plug.vim" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
