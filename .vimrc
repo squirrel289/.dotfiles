@@ -61,6 +61,7 @@ endif
 " Specify a directory for plugins
 " - For Neovim: ~/.local/share/nvim/plugged
 " - Avoid using standard Vim directory names like 'plugin'
+
 call plug#begin(vimfiles)
 
 Plug 'scrooloose/syntastic'
@@ -164,3 +165,5 @@ colorscheme slate
 set pastetoggle=<F3>
 
 let g:ale_completion_enabled = 1
+
+call togglerb#map("<F9>")
