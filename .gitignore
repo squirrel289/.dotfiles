@@ -1,0 +1,19 @@
+# Ignore MacOS files
+.DS_Store
+plugged/
+.vim/undo/*
+.netrwhist
+
+# Ignore all *.swp in case vim didn't clean up
+*.swp
+
+# Ignore all *.pems so we don't accidentally expose secrets
+*.pem
+
+# only include whitelisted configs
+.config/*
+!.config/configstore
+!.config/gtk-2.0
+!.config/inkscape
+!.config/yamllint
+!.config/nvim

@@ -11,7 +11,7 @@ esac
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth:erasedups
-PROMPT_COMMAND="history -n; history -w; history -c; history -r; $PROMPT_COMMAND"
+PROMPT_COMMAND="history -n; history -w;history -c;history -r;$PROMPT_COMMAND"
 
 # append to the history file, don't overwrite it
 shopt -s histappend
@@ -100,7 +100,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-command -v docker >/dev/null 2>&1 || { export DOCKER_HOST=unix:/run/user/$UID/podman/podman.sock; }
+# command -v docker >/dev/null 2>&1 || { export DOCKER_HOST=unix:/run/user/$UID/podman/podman.sock; }
 
 if [ -d ~/nvim-osx64/bin ]; then
   export PATH="${PATH}:~/nvim-osx64/bin"
@@ -119,6 +119,8 @@ fi
 
 if type vim > /dev/null 2>&1; then
   alias vi='vim'
+  export SYSTEMD_EDITOR=vim
+  export EDITOR=vim
 fi
 
 # add aws completion if it exists
@@ -131,6 +133,11 @@ fi
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
 fi
 
 if [ -f ~/.profile ]; then

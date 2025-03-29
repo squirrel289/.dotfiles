@@ -14,3 +14,23 @@ fi
 alias ll='ls -l'
 alias la='ls -A'
 alias l='ls -CF'
+
+alias m4b-tool='docker run -it --rm -u $(id -u):$(id -g) -v /mnt/data/downloads/completed/book:/mnt sandreas/m4b-tool:latest'
+
+dc() {
+  cur=`pwd`
+  cd "$1" && docker-compose ${@:2} || true
+  cd "$cur"
+}
+
+dcud() {
+  dc $1 up -d ${@:2}
+}
+
+dcp() {
+  dc $1 pull ${@:2}
+}
+
+dct() {
+  dc $1 logs --tail 100 ${@:2}
+}

@@ -96,6 +96,7 @@ Plug 'prettier/vim-prettier'
 "Plug 'xavierchow/vim-swagger-preview'
 Plug 'mbbill/undotree'
 Plug 'adi/vim-indent-rainbow'
+Plug 'christoomey/vim-tmux-navigator'
 
 call plug#end()
 
