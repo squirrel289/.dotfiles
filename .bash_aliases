@@ -17,6 +17,7 @@ alias l='ls -CF'
 
 alias m4b-tool='docker run -it --rm -u $(id -u):$(id -g) -v /mnt/data/downloads/completed/book:/mnt sandreas/m4b-tool:latest'
 
+# Shortcuts for docker compose
 dc() {
   cur=`pwd`
   cd "$1" && docker-compose ${@:2} || true
@@ -34,3 +35,7 @@ dcp() {
 dct() {
   dc $1 logs --tail 100 ${@:2}
 }
+
+# shorthand aliases for everyday apps
+alias s='ssh'
+alias g='git'
