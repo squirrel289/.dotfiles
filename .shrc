@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ -z "${ZELLIJ_SESSION_NAME:-}" ] && [ -z "${ZELLIJ:-}" ] \
+  && command -v zellij >/dev/null 2>&1; then
+  zellij attach -c "${USER}@$(hostname)" || true
+fi

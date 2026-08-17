@@ -147,3 +147,5 @@ fi
 if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
       tmux attach -t default || tmux new -s default
 fi
+. "$HOME/.cargo/env"
+eval "$(zellij setup --generate-auto-start bash)"

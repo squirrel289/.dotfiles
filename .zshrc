@@ -1,106 +1,140 @@
-# VS Code's Shell Integration assumes this var exists
+#! /bin/zsh
+# VS Code's Shell Integration assumes this var exists.
 RPROMPT=''
 
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+# Keep PATH entries unique while preserving order.
+typeset -U path fpath
 
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
+path_prepend() {
+  [[ -d "$1" ]] || return 0
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) path=("$1" $path) ;;
+  esac
+}
+
+path_append() {
+  [[ -d "$1" ]] || return 0
+  case ":$PATH:" in
+    *":$1:"*) ;;
+    *) path+=("$1") ;;
+  esac
+}
+
+source_if_readable() {
+  [[ -r "$1" ]] && source "$1"
+}
+
+# Universal shell init
+source_if_readable "$HOME/.shrc"
+
+# User aliases / shared shell snippets.
+source_if_readable "$HOME/.bash_aliases"
+
+# Completion search path must be configured before compinit.
+[[ -d "$HOME/.zsh/completion" ]] && fpath=("$HOME/.zsh/completion" $fpath)
+
+autoload -Uz compinit zmv
+
+# Completion styling and matching.
+if [[ -n "${LS_COLORS:-}" ]]; then
+  zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 fi
 
-# taken from https://www.codyhiar.com/blog/zsh-autocomplete-with-ssh-config-file/
-# Highlight the current autocomplete option
-zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
-
-# Better SSH/Rsync/SCP Autocomplete
+# Better SSH/Rsync/SCP autocomplete.
 zstyle ':completion:*:(scp|rsync):*' tag-order ' hosts:-ipaddr:ip\ address hosts:-host:host files'
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-host' ignored-patterns '*(.|:)*' loopback ip6-loopback localhost ip6-localhost broadcasthost
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
 
-# Allow for autocomplete to be case insensitive
-zstyle ':completion:*' matcher-list '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' \
-  '+l:|?=** r:|?=**'
+# Case-insensitive completion. Path-prefix backtracking is handled by the
+# widget loaded below; generic partial-word matching can rewrite path prefixes.
+zstyle ':completion:*' matcher-list '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'
 
-# Initialize the autocompletion
-autoload -Uz compinit && compinit -i
+# Initialize completion once. -i ignores insecure completion directories instead of failing.
+compinit -i
 
-export JAVA_HOME="$(/usr/libexec/java_home)"
-
-fpath=(~/.zsh/completion $fpath)
-autoload -U compinit
-compinit
-
-autoload -Uz zmv
 # allows for unquoted file move arguments
 alias mmv='noglob zmv -W'
 
-# don't put duplicate lines or lines starting with space in the history.
-# Taken from https://github.com/rothgar/mastering-zsh/blob/master/docs/config/history.md
-setopt EXTENDED_HISTORY          # Write the history file in the ':start:elapsed;command' format.
-setopt INC_APPEND_HISTORY        # Write to the history file immediately, not when the shell exits.
-setopt SHARE_HISTORY             # Share history between all sessions.
-setopt HIST_EXPIRE_DUPS_FIRST    # Expire a duplicate event first when trimming history.
-setopt HIST_IGNORE_DUPS          # Do not record an event that was just recorded again.
-setopt HIST_IGNORE_ALL_DUPS      # Delete an old recorded event if a new event is a duplicate.
-setopt HIST_FIND_NO_DUPS         # Do not display a previously found event.
-setopt HIST_IGNORE_SPACE         # Do not record an event starting with a space.
-setopt HIST_SAVE_NO_DUPS         # Do not write a duplicate event to the history file.
-setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
-setopt APPEND_HISTORY            # append to history file
-# setopt HIST_NO_STORE             # Don't store history commands
+# History configuration.
+setopt EXTENDED_HISTORY          # Store timestamps and command durations.
+setopt INC_APPEND_HISTORY        # Write each command immediately.
+setopt SHARE_HISTORY             # Share history between sessions.
+setopt HIST_EXPIRE_DUPS_FIRST    # Expire duplicates first when trimming history.
+setopt HIST_IGNORE_DUPS          # Do not record an immediately repeated command.
+setopt HIST_IGNORE_ALL_DUPS      # Remove older duplicate commands.
+setopt HIST_FIND_NO_DUPS         # Do not show previously found duplicate commands.
+setopt HIST_IGNORE_SPACE         # Do not record commands starting with a space.
+setopt HIST_SAVE_NO_DUPS         # Do not write duplicate commands to history.
+setopt HIST_VERIFY               # Expand history into the line instead of executing immediately.
+setopt APPEND_HISTORY            # Append to history instead of overwriting it.
 
-setopt APPEND_HISTORY            # append to the history file, don't overwrite it
-
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
-HISTFILESIZE=2000
-HISTFILE=~/.zsh_history_${ZELLIJ_SESSION_NAME}
-
-if [ -f "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" ]; then
-  export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+SAVEHIST=2000
+HISTFILESIZE=2000 # Kept for compatibility with bash-oriented snippets.
+if [[ -n "${ZELLIJ_SESSION_NAME:-}" ]]; then
+  HISTFILE="$HOME/.zsh_history_${ZELLIJ_SESSION_NAME}"
+else
+  HISTFILE="$HOME/.zsh_history"
 fi
 
-# Created by `pipx` on 2025-06-14 15:47:41
-export PATH="$PATH:/Users/macos/.local/bin"
-export JAVA_HOME='/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home'
-export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+# Platform-specific Java setup. Prefer Java 8 when available, matching the previous config.
+if [[ -x /usr/libexec/java_home ]]; then
+  if /usr/libexec/java_home -v 1.8 >/dev/null 2>&1; then
+    export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
+  elif /usr/libexec/java_home >/dev/null 2>&1; then
+    export JAVA_HOME="$(/usr/libexec/java_home)"
+  fi
+fi
 
-. ~/.dotfiles/history.sh
-# bun completions
-[ -s "/Users/macos/.bun/_bun" ] && source "/Users/macos/.bun/_bun"
+# Common tool paths.
+path_append "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+path_append "$HOME/.local/bin"
 
-# bun
+# Optional dotfiles hooks.
+source_if_readable "$HOME/.dotfiles/history.sh"
+
+# Homebrew-managed integrations.
+if command -v brew >/dev/null 2>&1; then
+  BREW_PREFIX="$(brew --prefix 2>/dev/null)"
+  if [[ -n "$BREW_PREFIX" ]]; then
+    source_if_readable "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+    source_if_readable "$BREW_PREFIX/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
+  fi
+  unset BREW_PREFIX
+fi
+
+# bun.
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+path_prepend "$BUN_INSTALL/bin"
+source_if_readable "$BUN_INSTALL/_bun"
 
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+# fnm.
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"
+fi
 
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# pnpm.
+if [[ "${OSTYPE:-}" == darwin* ]]; then
+  export PNPM_HOME="$HOME/Library/pnpm"
+else
+  export PNPM_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/pnpm"
+fi
+path_prepend "$PNPM_HOME/bin"
+path_prepend "$PNPM_HOME"
 
-eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"
-
-
-# pnpm
-export PNPM_HOME="/Users/macos/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME/bin:"*) ;;
-  *) export PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH" ;;
-esac
-# pnpm end
-
-# fzf
+# fzf. Some fzf versions warn when restoring the zle option in command-only shells.
 if command -v fzf >/dev/null 2>&1; then
-  eval "$(fzf --zsh)"
+  eval "$(fzf --zsh)" 2>/dev/null
 fi
-# fzf end
-eval "$(zellij setup --generate-auto-start zsh)"
-if type brew &>/dev/null; then
-    local zvm_path="$(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
-    if [[ -f "$zvm_path" ]]; then
-        source "$zvm_path"
-    fi
-fi   
+
+# Load after fzf so Tab preserves fzf's explicit ** completion trigger.
+source_if_readable "$HOME/.zsh/completion/path-prefix-completion.zsh"
+
+# zellij auto-start.
+# if command -v zellij >/dev/null 2>&1; then
+#   export XDG_RUNTIME_DIR="/tmp/zellij-$USER"
+#   mkdir -p "$XDG_RUNTIME_DIR"
+#   chmod 700 "$XDG_RUNTIME_DIR"
+#   eval "$(zellij setup --generate-auto-start zsh)"
+# fi

@@ -18,3 +18,4 @@ fi
 
 alias ll="ls -la"
 alias la="ls -a"
+. "$HOME/.cargo/env"
