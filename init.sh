@@ -1,4 +1,5 @@
 GITCONFIG=".gitconfig"
+SHRC=".shrc"
 BASH_PROFILE=".bash_profile"
 BASH_ALIASES=".bash_aliases"
 BASHRC=".bashrc"
@@ -7,6 +8,7 @@ PROFILE=".profile"
 VIMRC=".vimrc"
 VIMDIR=".vim"
 CONFIG=".config"
+PI=".pi"
 
 clear_path(){
   FILE="$1"
@@ -19,6 +21,7 @@ clear_path(){
   fi
 }
 clear_path "${HOME}/${GITCONFIG}"
+clear_path "${HOME}/${SHRC}"
 clear_path "${HOME}/${BASH_PROFILE}"
 clear_path "${HOME}/${BASH_ALIASES}"
 clear_path "${HOME}/${BASHRC}"
@@ -27,10 +30,12 @@ clear_path "${HOME}/${ZSHRC}"
 clear_path "${HOME}/${VIMRC}"
 clear_path "${HOME}/${CONFIG}"
 clear_path "${HOME}/${VIMDIR}"
+clear_path "${HOME}/${PI}"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 ln -s "${SCRIPT_DIR}/${GITCONFIG}" "${HOME}/"
+ln -s "${SCRIPT_DIR}/${SHRC}" "${HOME}/"
 ln -s "${SCRIPT_DIR}/${BASH_PROFILE}" "${HOME}/"
 ln -s "${SCRIPT_DIR}/${BASH_ALIASES}" "${HOME}/"
 ln -s "${SCRIPT_DIR}/${BASHRC}" "${HOME}/"
@@ -39,5 +44,6 @@ ln -s "${SCRIPT_DIR}/${ZSHRC}" "${HOME}/"
 ln -s "${SCRIPT_DIR}/${VIMRC}" "${HOME}/"
 ln -s "${SCRIPT_DIR}/${VIMDIR}" "${HOME}/"
 ln -s "${SCRIPT_DIR}/${CONFIG}" "${HOME}/"
+ln -s "${SCRIPT_DIR}/${PI}" "${HOME}/"
 
 curl -fLo "$HOME/$VIMDIR/autoload/plug.vim" --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim

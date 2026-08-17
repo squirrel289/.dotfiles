@@ -17,3 +17,4 @@ plugged/
 !.config/inkscape
 !.config/yamllint
 !.config/nvim
+.pi/
