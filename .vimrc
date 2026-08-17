@@ -4,6 +4,9 @@ filetype plugin indent on
 set autochdir " Set working directory to current
 set undofile " Maintain undo history between sessions
 
+" Set to use new regex engine for improved performance
+set re=0
+
 function! Gist(name)
     return { 'as': a:name, 'do': 'mkdir -p plugin: cp -f *.vim plugin/' }
 endfunction         
@@ -96,7 +99,8 @@ Plug 'prettier/vim-prettier'
 "Plug 'xavierchow/vim-swagger-preview'
 Plug 'mbbill/undotree'
 Plug 'adi/vim-indent-rainbow'
-Plug 'christoomey/vim-tmux-navigator'
+"Plug 'christoomey/vim-tmux-navigator'
+Plug 'MicahElliott/Rocannon'
 
 call plug#end()
 
