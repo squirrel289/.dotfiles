@@ -1,4 +1,8 @@
 #! /bin/zsh
+
+# Required once, near the top of ~/.zshrc
+autoload -U colors && colors
+
 # VS Code's Shell Integration assumes this var exists.
 RPROMPT=''
 
@@ -59,3 +63,35 @@ if [[ -z "${ZELLIJ_SESSION_NAME:-}" && -z "${ZELLIJ:-}" ]] && command -v zellij 
   fi
 fi
 unset _dotfiles_zellij_runtime_dir _dotfiles_zellij_zsh
+
+# zsh vi mode customizations
+function _vi_mode_indicator() {
+  if [[ -n "$ZVM_MODE" ]]; then
+    case $ZVM_MODE in
+      $ZVM_MODE_NORMAL)      RPS1="%{$fg_bold[green]%}NORMAL%{$reset_color%}" ;;
+      $ZVM_MODE_INSERT)      RPS1="%{$fg[cyan]%}INSERT%{$reset_color%}" ;;
+      $ZVM_MODE_VISUAL)      RPS1="%{$fg[blue]%}VISUAL%{$reset_color%}" ;;
+      $ZVM_MODE_VISUAL_LINE) RPS1="%{$fg[blue]%}V-LINE%{$reset_color%}" ;;
+      $ZVM_MODE_REPLACE)     RPS1="%{$fg[yellow]%}REPLACE%{$reset_color%}" ;;
+      *)                     RPS1='' ;;
+    esac
+  else
+    case $KEYMAP in
+      vicmd)       RPS1="%{$fg_bold[green]%}NORMAL%{$reset_color%}" ;;
+      main|viins)  RPS1="%{$fg[cyan]%}INSERT%{$reset_color%}" ;;
+      *)           RPS1='' ;;
+    esac
+  fi
+  zle reset-prompt
+}
+
+if [[ -n "$ZVM_MODE" ]]; then
+  ZVM_VI_HIGHLIGHT_BACKGROUND=blue
+  ZVM_VI_HIGHLIGHT_FOREGROUND=white
+  ZVM_VI_HIGHLIGHT_EXTRASTYLE=bold
+  zvm_after_select_vi_mode() { _vi_mode_indicator; }
+else
+  function zle-line-init zle-keymap-select { _vi_mode_indicator; }
+  zle -N zle-line-init
+  zle -N zle-keymap-select
+fi
