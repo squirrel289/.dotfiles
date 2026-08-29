@@ -8,9 +8,9 @@
 
 # Add OS specific settings
 [includeIf "gitdir:/Users"]
-    path = ~/.dotfiles/.gitconfig.macos
+    path = ~/.gitconfig.macos
 [includeIf "gitdir:C:"]
-    path = ~/.dotfiles/.gitconfig.windows
+    path = ~/.gitconfig.windows
 #[includeIf "gitdir:/home"]
 #    path = ~/.dotfiles/.gitconfig.linux
 [filter "lfs"]

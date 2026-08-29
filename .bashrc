@@ -1,151 +1,66 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
-
-# If not running interactively, don't do anything
+# Bash interactive policy and integrations.
 case $- in
     *i*) ;;
-      *) return;;
+    *) return 0 ;;
 esac
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
+[ -r "$HOME/.shrc" ] && . "$HOME/.shrc"
+
 HISTCONTROL=ignoreboth:erasedups
-PROMPT_COMMAND="history -n; history -w;history -c;history -r;$PROMPT_COMMAND"
-
-# append to the history file, don't overwrite it
-shopt -s histappend
-
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+_dotfiles_history_sync='history -n; history -w;history -c;history -r;'
+case ${PROMPT_COMMAND:-} in
+    "$_dotfiles_history_sync"*) ;;
+    *) PROMPT_COMMAND="$_dotfiles_history_sync${PROMPT_COMMAND:-}" ;;
+esac
+unset _dotfiles_history_sync
+shopt -s histappend checkwinsize
 HISTSIZE=1000
 HISTFILESIZE=2000
 
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
-
-# If set, the pattern "**" used in a pathname expansion context will
-# match all files and zero or more directories and subdirectories.
-#shopt -s globstar
-
-# make less more friendly for non-text input files, see lesspipe(1)
-#[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-# set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
-
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
+case $TERM in
+    xterm-color|*-256color) color_prompt=yes ;;
 esac
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-#force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
-    else
-	color_prompt=
-    fi
+if [ -n "${force_color_prompt:-}" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >/dev/null 2>&1; then color_prompt=yes; else color_prompt=; fi
 fi
-
-if [ "$color_prompt" = yes ]; then
+if [ "${color_prompt:-}" = yes ]; then
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
 unset color_prompt force_color_prompt
-
-# If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
+case $TERM in
+    xterm*|rxvt*) PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1" ;;
 esac
 
 USE_COLORS=true
+[ -r "$HOME/.bash_aliases" ] && . "$HOME/.bash_aliases"
 
-if $USE_COLORS ; then
-  # colored GCC warnings and errors
-  export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-fi
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
-
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
+    if [ -r /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+    elif [ -r /etc/bash_completion ]; then
+        . /etc/bash_completion
+    fi
 fi
 
-# command -v docker >/dev/null 2>&1 || { export DOCKER_HOST=unix:/run/user/$UID/podman/podman.sock; }
-
-if [ -d ~/nvim-osx64/bin ]; then
-  export PATH="${PATH}:~/nvim-osx64/bin"
+if [ -r "$HOME/.shell-integrations" ] && . "$HOME/.shell-integrations"; then
+    dotfiles_integrations bash
 fi
 
-# Set vim command to always use the newest available vi derivative
-if type nvim > /dev/null 2>&1; then
-  alias vim='nvim'
-  set XDG_CONFIG_HOME = "$HOME/.config"
-  if [ ! -d $XDG_CONFIG_HOME ]; then
-    mkdir -p $XDG_CONFIG_HOME
-    ln -s ~/.vim $XDG_CONFIG_HOME/nvim
-    ln -s ~/.vimrc $XDG_CONFIG_HOME/nvim/init.vim
-  fi
+if command -v nvim >/dev/null 2>&1; then
+    alias vim=nvim
 fi
-
-if type vim > /dev/null 2>&1; then
-  alias vi='vim'
-  export SYSTEMD_EDITOR=vim
-  export EDITOR=vim
+if command -v vim >/dev/null 2>&1; then
+    alias vi=vim
 fi
-
-# add aws completion if it exists
-aws_completer_path=`which aws_completer`
-
-if [ -f $aws_completer_path ]; then
-  complete -C '$aws_completer_path' aws
+if command -v tmux >/dev/null 2>&1 && [ -z "${TMUX:-}" ]; then
+    tmux attach -t default || tmux new -s default
 fi
-
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
+if command -v zellij >/dev/null 2>&1 && [ -z "${ZELLIJ:-}" ] && [ -z "${ZELLIJ_SESSION_NAME:-}" ]; then
+    _dotfiles_zellij_bash=$(dotfiles_generated_target zellij bash 2>/dev/null) && [ -n "$_dotfiles_zellij_bash" ] && eval "$_dotfiles_zellij_bash"
 fi
-
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
-fi
-
-if [ -f ~/.profile ]; then
-  . ~/.profile
-fi
-
-if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-      tmux attach -t default || tmux new -s default
-fi
-. "$HOME/.cargo/env"
-eval "$(zellij setup --generate-auto-start bash)"
+unset _dotfiles_zellij_bash

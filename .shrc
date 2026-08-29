@@ -1,6 +1,69 @@
-#!/bin/sh
+# Shared POSIX shell environment. Safe for sh and BusyBox ash.
+[ "${_DOTFILES_SHRC_LOADED:-}" = 1 ] && return 0
+_DOTFILES_SHRC_LOADED=1
 
-if [ -z "${ZELLIJ_SESSION_NAME:-}" ] && [ -z "${ZELLIJ:-}" ] \
-  && command -v zellij >/dev/null 2>&1; then
-  zellij attach -c "${USER}@$(hostname)" || true
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
+GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+export XDG_CONFIG_HOME GCC_COLORS
+
+dotfiles_path_prepend() {
+    [ -d "$1" ] || return 0
+    case ":$PATH:" in
+        *":$1:"*) ;;
+        *) PATH=$1:$PATH ;;
+    esac
+}
+
+dotfiles_path_append() {
+    [ -d "$1" ] || return 0
+    case ":$PATH:" in
+        *":$1:"*) ;;
+        *) PATH=$PATH:$1 ;;
+    esac
+}
+
+dotfiles_path_prepend "$HOME/bin"
+dotfiles_path_prepend "$HOME/.local/bin"
+
+BUN_INSTALL=$HOME/.bun
+export BUN_INSTALL
+dotfiles_path_prepend "$BUN_INSTALL/bin"
+
+case $(uname -s 2>/dev/null) in
+    Darwin)
+        PNPM_HOME=$HOME/Library/pnpm
+        if [ -x /usr/libexec/java_home ]; then
+            if /usr/libexec/java_home -v 1.8 >/dev/null 2>&1; then
+                JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+                export JAVA_HOME
+            elif /usr/libexec/java_home >/dev/null 2>&1; then
+                JAVA_HOME=$(/usr/libexec/java_home)
+                export JAVA_HOME
+            fi
+        fi
+        dotfiles_path_append '/Applications/Visual Studio Code.app/Contents/Resources/app/bin'
+        ;;
+    *) PNPM_HOME=${XDG_DATA_HOME:-"$HOME/.local/share"}/pnpm ;;
+esac
+export PNPM_HOME
+dotfiles_path_prepend "$PNPM_HOME/bin"
+dotfiles_path_prepend "$PNPM_HOME"
+
+if command -v go >/dev/null 2>&1; then
+    _dotfiles_go_path=$(go env GOPATH 2>/dev/null)
+    if [ -n "$_dotfiles_go_path" ]; then
+        GOPATH=$_dotfiles_go_path
+        export GOPATH
+        dotfiles_path_prepend "$GOPATH/bin"
+    fi
+    unset _dotfiles_go_path
 fi
+
+if command -v vim >/dev/null 2>&1; then
+    EDITOR=vim
+    SYSTEMD_EDITOR=vim
+    export EDITOR SYSTEMD_EDITOR
+fi
+
+export PATH
+[ -r "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

@@ -1,0 +1,52 @@
+# Aliases and functions that use portable shell syntax.
+alias ll='ls -la'
+alias la='ls -A'
+alias l='ls -CF'
+alias m4b-tool='podman run -it --rm -u $(id -u):$(id -g) -v /mnt/data/downloads/completed/book:/mnt sandreas/m4b-tool:latest'
+alias s='ssh'
+alias g='git'
+alias get_id='openssl rand -hex '
+
+dc() {
+    _dotfiles_dc_dir=$1
+    shift
+    _dotfiles_dc_old=$(pwd) || return 1
+    cd "$_dotfiles_dc_dir" && docker-compose "$@"
+    _dotfiles_dc_status=$?
+    cd "$_dotfiles_dc_old" || return "$_dotfiles_dc_status"
+    return "$_dotfiles_dc_status"
+}
+
+dcud() { _dotfiles_dc_dir=$1; shift; dc "$_dotfiles_dc_dir" up -d "$@"; }
+dcp() { _dotfiles_dc_dir=$1; shift; dc "$_dotfiles_dc_dir" pull "$@"; }
+dct() { _dotfiles_dc_dir=$1; shift; dc "$_dotfiles_dc_dir" logs --tail 100 "$@"; }
+
+if_dirty_git_worktree() {
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        if [ -n "$(git status --porcelain)" ]; then
+            "$@"
+        else
+            printf '%s\n' 'Repository is clean. Nothing to do...' >&2
+        fi
+    else
+        printf '%s\n' 'Not in a Git repository. Aborting...' >&2
+    fi
+}
+
+if command -v podman >/dev/null 2>&1 && ! command -v docker >/dev/null 2>&1; then
+    alias docker=podman
+fi
+if command -v code >/dev/null 2>&1 && ! command -v vs >/dev/null 2>&1; then
+    alias vs=code
+fi
+if command -v pi >/dev/null 2>&1 && ! command -v commit >/dev/null 2>&1; then
+    alias commit='if_dirty_git_worktree pi -p "review and commit the local changes in coherent, atomic, independent sets with a commitlint-compliant message and detailed bullets"'
+fi
+
+h() {
+    if [ -z "$*" ]; then
+        history 1
+    else
+        history 1 | grep -E "$@"
+    fi
+}
