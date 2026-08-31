@@ -117,6 +117,15 @@ run_bash_interactive 'set -o posix; . "$HOME/.bashrc"; alias ll="ls -la"; alias 
 printf '%s\n' "$work:testarg" "$work:up -d service" "$work:pull service" "$work:logs --tail 100 service" >"$tmp/expected-dc-log"
 cmp -s "$tmp/expected-dc-log" "$log" || fail 'dc helpers did not run in the requested directory or restore PWD'
 
+# SSH must advertise a portable terminal before remote startup files run.
+ssh_log=$tmp/ssh.log
+make_tool ssh <<'EOF'
+#!/bin/sh
+printf 'TERM=%s ARGS=%s\n' "$TERM" "$*" >"$SSH_LOG"
+EOF
+env HOME="$home" PATH="$clean_path" TERM=xterm-ghostty SSH_LOG="$ssh_log" bash --noprofile --norc -c '. "$HOME/.shell-aliases"; ssh example' || fail 'SSH wrapper failed'
+[ "$(cat "$ssh_log")" = 'TERM=xterm-256color ARGS=example' ] || fail 'SSH wrapper did not use a portable terminal'
+
 # Companion commands suppress only their matching convenience aliases.
 for tool in docker vs commit; do
     make_tool "$tool" <<'EOF'
@@ -204,6 +213,23 @@ grep -qx 'zellij:setup --generate-auto-start bash' "$log" || fail 'TMUX did not 
 run_bash_interactive 'set -o posix; TMUX=inside ZELLIJ=inside ZELLIJ_SESSION_NAME=name; . "$HOME/.bashrc"; test -z "${DOTFILES_ZELLIJ:-}"'
 [ ! -s "$log" ] || fail 'session markers did not suppress session managers'
 
+# An SSH client can advertise a terminal entry absent from the remote host (for
+# example Ghostty's xterm-ghostty).  The shared environment selects a portable
+# entry only when the advertised entry cannot be resolved remotely.
+make_tool tput <<'EOF'
+#!/bin/sh
+case ${2:-} in
+  xterm-ghostty) exit 1 ;;
+  xterm-256color) exit 0 ;;
+  *) exit 1 ;;
+esac
+EOF
+chmod +x "$mock/tput"
+env HOME="$home" PATH="$clean_path" TERM=xterm-ghostty SSH_TTY=/dev/pts/0 sh -c '. "$HOME/.shrc"; test "$TERM" = xterm-256color' || fail 'SSH terminal fallback did not select a supported terminal'
+env HOME="$home" PATH="$clean_path" TERM=xterm-ghostty TERMINFO=/missing SSH_TTY=/dev/pts/0 sh -c '. "$HOME/.shrc"; test "$TERM" = xterm-256color; test -z "${TERMINFO:-}"' || fail 'SSH terminal fallback retained an unusable local TERMINFO path'
+env HOME="$home" PATH="$clean_path" TERM=xterm-ghostty sh -c '. "$HOME/.shrc"; test "$TERM" = xterm-ghostty' || fail 'local terminal was unexpectedly changed'
+rm "$mock/tput"
+
 # POSIX profile is an isolation boundary, while shared PATH additions are idempotent.
 make_tool uname <<'EOF'
 #!/bin/sh
@@ -261,6 +287,10 @@ printf '%s\\n' 'DOTFILES_FNM=enabled'
 EOF
     cat >"$zmock/zellij" <<EOF
 #!/bin/sh
+if [ "\$1" = list-sessions ]; then
+    printf '%s\\n' session
+    exit 0
+fi
 printf 'zellij:%s\\n' "\$*" >>"$zlog"
 printf '%s\\n' 'DOTFILES_ZELLIJ=enabled'
 EOF
@@ -281,7 +311,15 @@ EOF
     ' >/dev/null 2>&1 || fail 'Zsh startup policy assertion failed'
     printf '%s\n' history autosuggestions vi-mode bun 'fnm:env --use-on-cd --version-file-strategy=recursive --shell zsh' path-prefix 'zellij:setup --generate-auto-start zsh' >"$tmp/expected-zlog"
     cmp -s "$tmp/expected-zlog" "$zlog" || fail 'Zsh plugin/generator ordering changed'
-    env HOME="$zhome" PATH="$zmock:/usr/bin:/bin" XDG_RUNTIME_DIR="$tmp/runtime" ZELLIJ_SESSION_NAME=session zsh -df -c '. "$HOME/.zshrc"; test "$HISTFILE" = "$HOME/.zsh_history_session"; test -z "${DOTFILES_ZELLIJ:-}"' >/dev/null 2>&1 || fail 'Zsh session-name history/Zellij gate changed'
+    history_state=$zhome/state/zsh/zellij
+    mkdir -p "$history_state"
+    : >"$history_state/history-session"
+    : >"$history_state/history-stale"
+    : >"$history_state/unrelated"
+    env HOME="$zhome" PATH="$zmock:/usr/bin:/bin" XDG_STATE_HOME="$zhome/state" XDG_RUNTIME_DIR="$tmp/runtime" ZELLIJ_SESSION_NAME=session zsh -df -c '. "$HOME/.zshrc"; test "$HISTFILE" = "$XDG_STATE_HOME/zsh/zellij/history-session"; test -z "${DOTFILES_ZELLIJ:-}"' >/dev/null 2>&1 || fail 'Zsh session-name history/Zellij gate changed'
+    [ -f "$history_state/history-session" ] || fail 'Zsh history cleanup removed the active session history'
+    [ ! -e "$history_state/history-stale" ] || fail 'Zsh history cleanup retained an inactive session history'
+    [ -f "$history_state/unrelated" ] || fail 'Zsh history cleanup removed an unrelated file'
     env HOME="$zhome" PATH="$zmock:/usr/bin:/bin" XDG_RUNTIME_DIR="$tmp/runtime" ZELLIJ=inside ZELLIJ_SESSION_NAME= zsh -df -c '. "$HOME/.zshrc"; test "$HISTFILE" = "$HOME/.zsh_history"; test -z "${DOTFILES_ZELLIJ:-}"' >/dev/null 2>&1 || fail 'Zsh ZELLIJ marker history/Zellij gate changed'
     printf '%s\n' 'startup-regression: zsh ok'
 else

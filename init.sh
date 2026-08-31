@@ -29,6 +29,13 @@ backup_path() {
 
 link_managed() {
   local source=$1 destination=$2 backup
+  # Managed startup entries are files except .vim.  Never "back up" a
+  # directory to make room for one: it may be application state (for example,
+  # a pre-existing .profile directory) and moving it is destructive.
+  if [ -d "$destination" ] && [ ! -d "$source" ]; then
+    printf 'Refusing directory where managed file belongs: %s\n' "$destination" >&2
+    return 1
+  fi
   if [ -L "$destination" ] && [ "$(readlink "$destination")" = "$source" ]; then
     return 0
   fi
@@ -71,4 +78,23 @@ done
 managed_config_children=(configstore gtk-2.0 inkscape nvim)
 for target in "${managed_config_children[@]}"; do
   link_managed "$script_dir/.config/$target" "$config_destination/$target"
+done
+
+# Pi keeps credentials, sessions, caches, and installed packages in ~/.pi.
+# Only the reviewed files in pi-config are portable; never replace the state
+# directory with the historical ~/.dotfiles/.pi symlink.
+pi_destination=$HOME/.pi
+if [ -L "$pi_destination" ]; then
+  printf 'Refusing Pi state-directory symlink: %s\n' "$pi_destination" >&2
+  exit 1
+elif [ -e "$pi_destination" ] && [ ! -d "$pi_destination" ]; then
+  printf 'Refusing non-directory Pi state target: %s\n' "$pi_destination" >&2
+  exit 1
+elif [ ! -e "$pi_destination" ]; then
+  mkdir -p "$pi_destination"
+fi
+mkdir -p "$pi_destination/agent"
+portable_pi_files=(AGENTS.md settings.json models-store.json pi-vcc-config.json)
+for target in "${portable_pi_files[@]}"; do
+  link_managed "$script_dir/pi-config/agent/$target" "$pi_destination/agent/$target"
 done

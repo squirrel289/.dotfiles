@@ -34,7 +34,48 @@ setopt HIST_SAVE_NO_DUPS HIST_VERIFY APPEND_HISTORY
 HISTSIZE=1000
 SAVEHIST=2000
 HISTFILESIZE=2000
-if [[ -n "${ZELLIJ_SESSION_NAME:-}" ]]; then HISTFILE="$HOME/.zsh_history_${ZELLIJ_SESSION_NAME}"; else HISTFILE="$HOME/.zsh_history"; fi
+
+# Keep per-Zellij-session history out of $HOME and remove only our own files
+# once Zellij confirms their sessions are no longer active.
+_dotfiles_zellij_history_key() {
+  print -r -- "${1//[^A-Za-z0-9_.-]/_}"
+}
+
+_dotfiles_cleanup_zellij_history() {
+  local history_file history_key active_session active_key active_sessions
+  local -a active_keys
+  local keep
+  command -v zellij >/dev/null 2>&1 || return 0
+  active_sessions=$(zellij list-sessions --short 2>/dev/null) || return 0
+  active_keys=("$1")
+  while IFS= read -r active_session; do
+    [[ -n "$active_session" ]] && active_keys+=("$(_dotfiles_zellij_history_key "$active_session")")
+  done <<< "$active_sessions"
+
+  for history_file in "$2"/history-*(N); do
+    history_key=${history_file:t}
+    history_key=${history_key#history-}
+    keep=false
+    for active_key in "${active_keys[@]}"; do
+      [[ "$history_key" == "$active_key" ]] && { keep=true; break; }
+    done
+    [[ "$keep" == true ]] || rm -f -- "$history_file"
+  done
+}
+
+if [[ -n "${ZELLIJ_SESSION_NAME:-}" ]]; then
+  _dotfiles_zellij_history_dir="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/zellij"
+  _dotfiles_zellij_history_session="$(_dotfiles_zellij_history_key "$ZELLIJ_SESSION_NAME")"
+  if mkdir -p "$_dotfiles_zellij_history_dir" 2>/dev/null && chmod 700 "$_dotfiles_zellij_history_dir" 2>/dev/null; then
+    HISTFILE="$_dotfiles_zellij_history_dir/history-$_dotfiles_zellij_history_session"
+    _dotfiles_cleanup_zellij_history "$_dotfiles_zellij_history_session" "$_dotfiles_zellij_history_dir"
+  else
+    HISTFILE="$HOME/.zsh_history"
+  fi
+  unset _dotfiles_zellij_history_dir _dotfiles_zellij_history_session
+else
+  HISTFILE="$HOME/.zsh_history"
+fi
 
 source_if_readable "$HOME/.dotfiles/history.sh"
 

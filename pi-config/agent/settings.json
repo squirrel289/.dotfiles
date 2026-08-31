@@ -1,0 +1,139 @@
+{
+  "packages": [
+    {
+      "source": "npm:pi-codex",
+      "skills": [
+        "-skills/gpt-5-4-prompting/SKILL.md"
+      ]
+    },
+    {
+      "source": "npm:pi-memory-honcho",
+      "extensions": [
+        "-extensions/index.ts"
+      ]
+    },
+    "npm:pi-rtk-optimizer",
+    "npm:pi-caffeinate",
+    {
+      "source": "npm:statusline-pi",
+      "extensions": [
+        "-src/index.ts"
+      ]
+    },
+    {
+      "source": "git:tomsej/pi-ext",
+      "extensions": [
+        "extensions/ask-user-question/index.ts",
+        "extensions/pi-sem/index.ts",
+        "extensions/leader-key/index.ts",
+        "extensions/permissions/permissions.ts",
+        "extensions/review/review.ts",
+        "-extensions/leader-key/index.ts",
+        "-extensions/ask-user-question/index.ts"
+      ],
+      "skills": [
+        "-skills/commit/SKILL.md",
+        "-skills/pr-review-comments/SKILL.md"
+      ]
+    },
+    "npm:pi-session-cleanup",
+    {
+      "source": "npm:pi-zellij-tools",
+      "extensions": [
+        "-index.ts"
+      ]
+    },
+    {
+      "source": "npm:pi-vcc",
+      "extensions": [
+        "-index.ts"
+      ]
+    },
+    {
+      "source": "npm:pi-powerline-footer",
+      "extensions": [
+        "-index.ts"
+      ]
+    },
+    "npm:pi-subagents",
+    "npm:pi-web-access",
+    "npm:pi-rewind",
+    "npm:pi-extmgr",
+    "npm:pi-interactive-shell",
+    {
+      "source": "../../dev/pi-extensions",
+      "extensions": [
+        "extensions/agent-workflows/index.ts",
+        "+extensions/handoff/index.ts",
+        "+extensions/session-move/index.ts",
+        "+extensions/vcc-semantic/index.ts",
+        "-extensions/agent-workflows/index.ts",
+        "+extensions/triage-control-plane/index.ts",
+        "+extensions/pi-channel/index.ts"
+      ]
+    },
+    "npm:pi-smart-compact",
+    "npm:pi-context-tree",
+    "npm:oppi-mirror",
+    "npm:@a5c-ai/babysitter-pi",
+    "npm:context-mode",
+    "npm:pi-fzfp",
+    "npm:pi-tool-display",
+    "npm:pi-vim",
+    "git:github.com/edxeth/pi-auto-session-titles",
+    "npm:pi-intercom",
+    "npm:pi-delete-session",
+    "npm:pi-notify"
+  ],
+  "lastChangelogVersion": "0.84.1",
+  "theme": "catppuccin-mocha",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-terra",
+  "defaultThinkingLevel": "medium",
+  "shellPath": "/bin/zsh",
+  "extensions": [
+    "/Users/macos/.pi/agent/extensions/shell-shortcuts.ts",
+    "/extensions/pi-channel/index.ts",
+    "/Users/macos/dev/pi-extensions/extensions/pi-channel/index.ts"
+  ],
+  "skills": [
+    "-skills/merge-executor/SKILL.md",
+    "-skills/organizing-documents-diataxis/SKILL.md",
+    "-skills/pr-evidence-sync/SKILL.md",
+    "-skills/setup-matt-pocock-skills/SKILL.md",
+    "-skills/to-prd/SKILL.md",
+    "-skills/write-a-skill/SKILL.md",
+    "-skills/ci-gate-orchestrator/SKILL.md",
+    "-skills/code-review/SKILL.md",
+    "-skills/create-pr/SKILL.md",
+    "-skills/creating-plan/SKILL.md",
+    "-skills/executing-plan/SKILL.md",
+    "-skills/finalizing-work-item/SKILL.md",
+    "-skills/find-skills/SKILL.md",
+    "-skills/gh-pr-review/SKILL.md",
+    "-skills/github-branch-protection/SKILL.md",
+    "-skills/guarding-branches/SKILL.md",
+    "-skills/handle-pr-feedback/SKILL.md",
+    "-skills/implement/SKILL.md",
+    "-skills/merge-pr/SKILL.md",
+    "-skills/integration-testing/SKILL.md",
+    "-skills/pr-state-snapshot/SKILL.md",
+    "-skills/process-pr/SKILL.md",
+    "-skills/pull-request-tool/SKILL.md",
+    "-skills/resolve-pr-comments/SKILL.md",
+    "-skills/resolving-merge-conflicts/SKILL.md",
+    "-skills/review-thread-gate/SKILL.md",
+    "-skills/teach/SKILL.md",
+    "-skills/triage/SKILL.md",
+    "-skills/work-item-readiness-gate/SKILL.md"
+  ],
+  "hideThinkingBlock": true,
+  "outputPad": 0,
+  "tuiMode": "fullscreen",
+  "smartCompact": {
+    "requireApproval": false,
+    "autoTrigger": true,
+    "minContextPercent": 60,
+    "backupEnabled": true
+  }
+}

@@ -3,6 +3,11 @@ alias ll='ls -la'
 alias la='ls -A'
 alias l='ls -CF'
 alias m4b-tool='podman run -it --rm -u $(id -u):$(id -g) -v /mnt/data/downloads/completed/book:/mnt sandreas/m4b-tool:latest'
+# SSH transmits TERM before remote startup files run.  Advertise a portable
+# entry so hosts without Ghostty terminfo can create a valid terminal session.
+ssh() {
+    TERM=xterm-256color command ssh "$@"
+}
 alias s='ssh'
 alias g='git'
 alias get_id='openssl rand -hex '

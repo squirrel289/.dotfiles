@@ -11,6 +11,8 @@ mkdir -p "$home"
 env HOME="$home" bash "$repo/init.sh" >/dev/null || fail 'clean install failed'
 [ -L "$home/.bashrc" ] && [ "$(readlink "$home/.bashrc")" = "$repo/.bashrc" ] || fail 'installer did not link .bashrc'
 [ -L "$home/.shell-integrations" ] || fail 'installer did not link dispatcher'
+[ -d "$home/.pi" ] && [ ! -L "$home/.pi" ] || fail 'installer replaced the Pi state directory'
+[ -L "$home/.pi/agent/settings.json" ] && [ "$(readlink "$home/.pi/agent/settings.json")" = "$repo/pi-config/agent/settings.json" ] || fail 'installer did not link portable Pi settings'
 env HOME="$home" bash "$repo/init.sh" >/dev/null || fail 'idempotent install failed'
 
 conflict=$tmp/conflict
@@ -23,4 +25,32 @@ fi
 env HOME="$conflict" bash "$repo/init.sh" --backup-existing >/dev/null || fail 'backup install failed'
 [ -L "$conflict/.bashrc" ] || fail 'backup install did not link replacement'
 ls "$conflict/.bashrc.backup-"* >/dev/null 2>&1 || fail 'backup install did not retain conflict'
+
+# A managed file must never replace or relocate an existing directory, even
+# when conflict backups are requested.  .pi is intentionally unmanaged.
+directory_conflict=$tmp/directory-conflict
+mkdir -p "$directory_conflict/.profile" "$directory_conflict/.pi"
+printf '%s\n' profile-data >"$directory_conflict/.profile/keep"
+printf '%s\n' pi-data >"$directory_conflict/.pi/keep"
+if env HOME="$directory_conflict" bash "$repo/init.sh" --backup-existing >/dev/null 2>&1; then
+    fail 'backup install accepted a directory where a managed file belongs'
+fi
+[ -d "$directory_conflict/.profile" ] && [ ! -L "$directory_conflict/.profile" ] || fail 'installer replaced .profile directory'
+[ "$(cat "$directory_conflict/.profile/keep")" = profile-data ] || fail 'installer relocated .profile directory'
+[ -d "$directory_conflict/.pi" ] && [ ! -L "$directory_conflict/.pi" ] || fail 'installer linked unmanaged .pi directory'
+
+# Pi's state directory is retained; only explicitly portable files may be linked.
+pi_home=$tmp/pi-home
+mkdir -p "$pi_home/.pi/agent"
+printf '%s\n' local-state >"$pi_home/.pi/keep"
+printf '%s\n' local-settings >"$pi_home/.pi/agent/settings.json"
+if env HOME="$pi_home" bash "$repo/init.sh" >/dev/null 2>&1; then
+    fail 'installer accepted conflicting portable Pi settings'
+fi
+[ "$(cat "$pi_home/.pi/agent/settings.json")" = local-settings ] || fail 'installer overwrote local Pi settings'
+env HOME="$pi_home" bash "$repo/init.sh" --backup-existing >/dev/null || fail 'Pi settings backup install failed'
+[ -d "$pi_home/.pi" ] && [ ! -L "$pi_home/.pi" ] || fail 'installer replaced the Pi state directory'
+[ "$(cat "$pi_home/.pi/keep")" = local-state ] || fail 'installer relocated Pi state'
+[ -L "$pi_home/.pi/agent/settings.json" ] && [ "$(readlink "$pi_home/.pi/agent/settings.json")" = "$repo/pi-config/agent/settings.json" ] || fail 'installer did not link portable Pi settings after backup'
+ls "$pi_home/.pi/agent/settings.json.backup-"* >/dev/null 2>&1 || fail 'installer did not retain local Pi settings'
 printf '%s\n' 'init: ok'

@@ -2,6 +2,8 @@
 
 Run `bash init.sh` to link the managed files into the current user's home directory. It refuses conflicting managed targets; use `bash init.sh --backup-existing` to move a conflicting managed child aside first. The installer never downloads editor plugins.
 
+Pi keeps mutable state, credentials, sessions, caches, and installed packages in `~/.pi`; that directory is never linked. The installer links only the reviewed files in `pi-config/agent/` into `~/.pi/agent/`. It refuses an existing `~/.pi` symlink, including the legacy `~/.dotfiles/.pi` link, so that state can be migrated deliberately rather than modified through a symlink.
+
 Bash uses `.bash_profile`/`.bashrc` and Zsh uses `.zshrc`. POSIX `sh` and BusyBox `ash` users can opt in by sourcing `~/.profile`; it loads only the POSIX-safe `.shrc` environment and intentionally does not load aliases, completions, or generated integrations.
 
 `.shrc` centralizes shared environment policy: XDG and user paths, Bun, pnpm, guarded Go and Vim editor settings, plus Darwin-only Java and VS Code CLI paths. It uses `uname` and command/file checks so the same file is safe on Linux, macOS, `sh`, and `ash`. Bash and Zsh retain only their shell-specific aliases, completions, plugins, and generated fnm/fzf/Zellij initialization; Bun completion remains Zsh-specific.

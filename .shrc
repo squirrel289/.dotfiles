@@ -6,6 +6,35 @@ XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
 GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 export XDG_CONFIG_HOME GCC_COLORS
 
+# SSH passes the local TERM value to the server.  Some hosts (notably small
+# Linux installations) do not ship entries for newer terminal emulators such
+# as Ghostty.  Use a portable terminal only when the remote cannot resolve the
+# advertised one; retain valid and local terminal identities unchanged.
+dotfiles_ssh_terminal_fallback() {
+    case ${SSH_TTY:-${SSH_CONNECTION:-}} in
+        '') return 0 ;;
+    esac
+    [ -n "${TERM:-}" ] || return 0
+    command -v tput >/dev/null 2>&1 || return 0
+    tput -T "$TERM" cols >/dev/null 2>&1 && return 0
+    # TERMINFO is normally local to a terminal application.  If it was sent
+    # over SSH but cannot resolve TERM, use the remote system database instead.
+    if [ -n "${TERMINFO:-}" ]; then
+        unset TERMINFO
+        tput -T "$TERM" cols >/dev/null 2>&1 && return 0
+    fi
+    for _dotfiles_terminal in xterm-256color xterm vt100; do
+        if tput -T "$_dotfiles_terminal" cols >/dev/null 2>&1; then
+            TERM=$_dotfiles_terminal
+            export TERM
+            unset _dotfiles_terminal
+            return 0
+        fi
+    done
+    unset _dotfiles_terminal
+}
+dotfiles_ssh_terminal_fallback
+
 dotfiles_path_prepend() {
     [ -d "$1" ] || return 0
     case ":$PATH:" in
