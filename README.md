@@ -1,6 +1,20 @@
 # Dotfiles
 
-Run `bash init.sh` to link the managed files into the current user's home directory. It refuses conflicting managed targets; use `bash init.sh --backup-existing` to move a conflicting managed child aside first. The installer never downloads editor plugins.
+Run `bash init.sh` to link the managed files into the current user's home directory. The installer is intentionally fast and local-first; it sources the managed-file manifest from `manifest.sh`.
+
+It refuses conflicting managed targets by default. Use `bash init.sh --backup-existing` to move a conflicting managed child aside first, or `bash init.sh --force` to replace conflicting non-directory targets without keeping a backup. The installer never downloads editor plugins.
+
+Useful commands:
+
+```sh
+bash init.sh
+bash init.sh --dry-run
+bash init.sh --verbose
+bash init.sh --backup-existing
+bash init.sh --force
+```
+
+Ansible and other provisioning tools should treat this repository as self-installing. Clone or update it, then run `bash init.sh`. For check mode or previews, run `bash init.sh --dry-run`; for changed/ok/error reporting, consume the installer's `change:`, `ok:`, and `error:` output. Keep dotfile link policy in `manifest.sh` and `init.sh`; do not reimplement the manifest in an external automation repository.
 
 Pi keeps mutable state, credentials, sessions, caches, and installed packages in `~/.pi`; that directory is never linked. The installer links only the reviewed files in `pi-config/agent/` into `~/.pi/agent/`. It refuses an existing `~/.pi` symlink, including the legacy `~/.dotfiles/.pi` link, so that state can be migrated deliberately rather than modified through a symlink.
 

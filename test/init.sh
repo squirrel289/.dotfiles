@@ -26,6 +26,22 @@ env HOME="$conflict" bash "$repo/init.sh" --backup-existing >/dev/null || fail '
 [ -L "$conflict/.bashrc" ] || fail 'backup install did not link replacement'
 ls "$conflict/.bashrc.backup-"* >/dev/null 2>&1 || fail 'backup install did not retain conflict'
 
+dry_run_home=$tmp/dry-run
+mkdir -p "$dry_run_home"
+dry_run_output=$(env HOME="$dry_run_home" bash "$repo/init.sh" --dry-run)
+printf '%s\n' "$dry_run_output" | grep 'change:' >/dev/null || fail 'dry-run did not report planned changes'
+[ ! -e "$dry_run_home/.bashrc" ] || fail 'dry-run created a managed link'
+[ ! -e "$dry_run_home/.config" ] || fail 'dry-run created .config'
+
+force_home=$tmp/force
+mkdir -p "$force_home"
+printf '%s\n' original >"$force_home/.bashrc"
+env HOME="$force_home" bash "$repo/init.sh" --force >/dev/null || fail 'force install failed'
+[ -L "$force_home/.bashrc" ] || fail 'force install did not link replacement'
+if ls "$force_home/.bashrc.backup-"* >/dev/null 2>&1; then
+    fail 'force install unexpectedly retained a backup'
+fi
+
 # A managed file must never replace or relocate an existing directory, even
 # when conflict backups are requested.  .pi is intentionally unmanaged.
 directory_conflict=$tmp/directory-conflict
