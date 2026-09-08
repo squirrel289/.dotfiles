@@ -77,7 +77,8 @@
     "npm:pi-intercom",
     "npm:pi-delete-session",
     "npm:pi-notify",
-    "npm:pi-ponytail"
+    "npm:pi-ponytail",
+    "npm:pi-btw"
   ],
   "lastChangelogVersion": "0.85.1",
   "theme": "catppuccin-mocha",
