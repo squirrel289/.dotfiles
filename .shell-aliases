@@ -55,3 +55,10 @@ h() {
         history 1 | grep -E "$@"
     fi
 }
+
+if [ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]; then
+    alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+    if [ -n "${ZSH_VERSION-}" ] && [ -n "${fpath[1]-}" ] && [ -d "${fpath[1]}" ]; then
+        /Applications/Tailscale.app/Contents/MacOS/Tailscale completion zsh > "${fpath[1]}/_tailscale"
+    fi
+fi
