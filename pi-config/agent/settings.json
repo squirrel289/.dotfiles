@@ -6,12 +6,6 @@
         "-skills/gpt-5-4-prompting/SKILL.md"
       ]
     },
-    {
-      "source": "npm:pi-memory-honcho",
-      "extensions": [
-        "-extensions/index.ts"
-      ]
-    },
     "npm:pi-rtk-optimizer",
     "npm:pi-caffeinate",
     {
@@ -21,7 +15,7 @@
       ]
     },
     {
-      "source": "git:tomsej/pi-ext",
+      "source": "https://github.com/tomsej/pi-ext",
       "extensions": [
         "extensions/ask-user-question/index.ts",
         "extensions/pi-sem/index.ts",
@@ -65,7 +59,6 @@
       "extensions": [
         "extensions/agent-workflows/index.ts",
         "+extensions/handoff/index.ts",
-        "+extensions/session-move/index.ts",
         "+extensions/vcc-semantic/index.ts",
         "-extensions/agent-workflows/index.ts",
         "+extensions/triage-control-plane/index.ts",
@@ -83,13 +76,14 @@
     "git:github.com/edxeth/pi-auto-session-titles",
     "npm:pi-intercom",
     "npm:pi-delete-session",
-    "npm:pi-notify"
+    "npm:pi-notify",
+    "npm:pi-ponytail"
   ],
-  "lastChangelogVersion": "0.84.1",
+  "lastChangelogVersion": "0.85.1",
   "theme": "catppuccin-mocha",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-terra",
-  "defaultThinkingLevel": "medium",
+  "defaultThinkingLevel": "high",
   "shellPath": "/bin/zsh",
   "extensions": [
     "/Users/macos/.pi/agent/extensions/shell-shortcuts.ts",

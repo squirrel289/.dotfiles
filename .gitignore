@@ -17,4 +17,6 @@ plugged/
 !.config/inkscape
 !.config/yamllint
 !.config/nvim
+
+# Ignore operational artifacts
 .pi/
