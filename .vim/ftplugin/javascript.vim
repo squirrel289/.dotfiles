@@ -1,6 +1,6 @@
 augroup Prettier
   autocmd!
-  if g:prettier#autoformat
+  if get(g:, 'prettier#autoformat', 0)
     autocmd BufWritePre *.js,*.jsx,*.mjs call prettier#Autoformat()
   endif
 augroup end
