@@ -12,8 +12,16 @@ source_if_readable() { [[ -r "$1" ]] && source "$1"; }
 source_if_readable "$HOME/.shrc"
 source_if_readable "$HOME/.shell-aliases"
 
+# Load the edit-command-line widget
+autoload -Uz edit-command-line
+zle -N edit-command-line
+
+# Bind to `v` in Vi command mode (requires set -o vi or bindkey -v)
+bindkey -M vicmd v edit-command-line
+
 [[ -d "$HOME/.zsh/completion" ]] && fpath=("$HOME/.zsh/completion" $fpath)
 autoload -Uz compinit zmv
+
 if [[ -n "${LS_COLORS:-}" ]]; then
   zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 fi
