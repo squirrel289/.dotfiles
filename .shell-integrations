@@ -50,6 +50,26 @@ _dotfiles_register_fzf() {
     eval "$_dotfiles_fzf_output"
 }
 
+_dotfiles_register_zellij() {
+    _dotfiles_target=$1
+    _dotfiles_zellij=$(_dotfiles_find_executable zellij) || return 0
+    [ -n "$_dotfiles_zellij" ] || return 0
+
+    case $_dotfiles_target in
+        bash) _dotfiles_zellij_output=$(command "$_dotfiles_zellij" setup --generate-completion bash 2>/dev/null) || return 0 ;;
+        zsh)
+            if ! command -v compdef >/dev/null 2>&1; then
+                autoload -Uz compinit
+                compinit -i
+            fi
+            _dotfiles_zellij_output=$(command "$_dotfiles_zellij" setup --generate-completion zsh 2>/dev/null) || return 0
+            ;;
+        *) return 0 ;;
+    esac
+    [ -n "$_dotfiles_zellij_output" ] || return 0
+    eval "$_dotfiles_zellij_output"
+}
+
 dotfiles_generated_target() {
     _dotfiles_generated_tool=${1-}
     _dotfiles_generated_shell=${2-}
@@ -79,5 +99,6 @@ dotfiles_integrations() {
     esac
     _dotfiles_register_aws "$1"
     _dotfiles_register_fzf "$1"
+    _dotfiles_register_zellij "$1"
     return 0
 }
