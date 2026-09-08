@@ -11,16 +11,15 @@ function! Gist(name)
     return { 'as': a:name, 'do': 'mkdir -p plugin: cp -f *.vim plugin/' }
 endfunction         
                           
-"function Download(url, output)
-"  if has('win32')
-"    silent! md a:output; (New-Object Net.WebClient).DownloadFile(a:url, $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(g:plugfile))
-"  endif
-"  if has('unix') || has('macunix')
-"    let cmd='curl -fLo '. a:output. ' --create-dirs '.a:url
-"    echom cmd
-"    let err=system(cmd)
-"  endif
-"endfunction
+function! Download(url, output)
+  if has('win32')
+    silent! md a:output; (New-Object Net.WebClient).DownloadFile(a:url, $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(a:output))
+  endif
+  if has('unix') || has('macunix')
+    let cmd='curl -fLo '. a:output. ' --create-dirs '.a:url
+    let err=system(cmd)
+  endif
+endfunction
 
 " Auto update plug.vim before we use it
 if has('win32')
@@ -33,10 +32,9 @@ if has('unix') || has('macunix')
   let plugfile = g:vimdir. 'autoload/plug.vim'
 endif
 
-"if empty(glob(g:plugfile))
-"  call Download('https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim', g:plugfile)
-"  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-"endif
+if empty(glob(g:plugfile))
+  call Download('https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim', g:plugfile)
+endif
 
 let undodir = g:vimdir. 'undo'
 let vimfiles = g:vimdir. 'plugged' 
@@ -103,6 +101,13 @@ Plug 'adi/vim-indent-rainbow'
 Plug 'MicahElliott/Rocannon'
 
 call plug#end()
+
+augroup install_missing_vim_plugins
+  autocmd!
+  if !empty(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+    autocmd VimEnter * ++once PlugInstall --sync | source $MYVIMRC
+  endif
+augroup END
 
 " EasyAlign mappings
 "  Markdown Table mappings
@@ -172,4 +177,6 @@ set pastetoggle=<F3>
 
 let g:ale_completion_enabled = 1
 
-call togglerb#map("<F9>")
+if !empty(globpath(&runtimepath, 'autoload/togglerb.vim'))
+  call togglerb#map("<F9>")
+endif
