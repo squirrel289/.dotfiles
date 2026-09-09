@@ -16,8 +16,10 @@ plugged/
 !.config/ghostty
 !.config/gtk-2.0
 !.config/inkscape
-!.config/yamllint
 !.config/nvim
+!.config/yamllint
+!.config/zellij
+.config/zellij/plugins/*
 
 # Ignore operational artifacts
 .pi/

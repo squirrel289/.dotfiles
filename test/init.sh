@@ -10,6 +10,7 @@ home=$tmp/home
 mkdir -p "$home"
 env HOME="$home" bash "$repo/init.sh" >/dev/null || fail 'clean install failed'
 [ -L "$home/.bashrc" ] && [ "$(readlink "$home/.bashrc")" = "$repo/.bashrc" ] || fail 'installer did not link .bashrc'
+[ -L "$home/.config/zellij" ] && [ "$(readlink "$home/.config/zellij")" = "$repo/.config/zellij" ] || fail 'installer did not link Zellij config'
 [ -L "$home/.shell-integrations" ] || fail 'installer did not link dispatcher'
 [ -d "$home/.pi" ] && [ ! -L "$home/.pi" ] || fail 'installer replaced the Pi state directory'
 [ -L "$home/.pi/agent/settings.json" ] && [ "$(readlink "$home/.pi/agent/settings.json")" = "$repo/pi-config/agent/settings.json" ] || fail 'installer did not link portable Pi settings'

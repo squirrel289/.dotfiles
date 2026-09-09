@@ -75,7 +75,7 @@ for target in "${managed_files[@]}"; do
   link_managed "$script_dir/$target" "$HOME/$target"
 done
 
-managed_config_children=(configstore gtk-2.0 inkscape nvim)
+managed_config_children=(configstore gtk-2.0 inkscape nvim zellij)
 for target in "${managed_config_children[@]}"; do
   link_managed "$script_dir/.config/$target" "$config_destination/$target"
 done
