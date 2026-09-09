@@ -13,6 +13,7 @@ plugged/
 # only include whitelisted configs
 .config/*
 !.config/configstore
+!.config/ghostty
 !.config/gtk-2.0
 !.config/inkscape
 !.config/yamllint

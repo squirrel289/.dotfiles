@@ -1,0 +1,10 @@
+# Pass Alt+Arrow keys to Zellij for pane navigation
+keybind = alt+left=unbind
+keybind = alt+right=unbind
+keybind = alt+up=unbind
+keybind = alt+down=unbind
+
+# Pass Alt+F to Zellij (prevents Ghostty floating pane)
+keybind = alt+f=unbind
+
+desktop-notifications = true
